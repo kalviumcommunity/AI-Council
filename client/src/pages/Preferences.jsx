@@ -143,80 +143,84 @@ const Preferences = () => {
   const CurrentStepComponent = steps[currentStep].component;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-8">
-      {/* Header */}
-      <div className="absolute top-8 left-8">
-        <h1 className="text-xl font-semibold text-gray-900">NextStep AI</h1>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Header - Responsive positioning */}
+      <div className="flex justify-center sm:justify-start px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8 pb-4 sm:pb-0">
+        <h1 className="text-lg sm:text-xl font-semibold text-gray-900">NextStep AI</h1>
       </div>
 
-      {/* Main Card */}
-      <div className="w-full max-w-2xl">
-        <div className="bg-white rounded-3xl shadow-xl p-8 mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-8">Preference Details</h2>
-            
-            {/* Progress Indicators */}
-            <div className="flex justify-center space-x-4 mb-8">
-              {steps.map((_, index) => (
-                <div
-                  key={index}
-                  className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-medium ${
-                    index <= currentStep 
-                      ? index === currentStep 
-                        ? 'bg-gray-800' 
-                        : 'bg-gray-600'
-                      : 'bg-gray-200 text-gray-500'
-                  }`}
-                >
-                  {index + 1}
-                </div>
-              ))}
+      {/* Main Content - Centered with proper mobile spacing */}
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="w-full max-w-2xl">
+          <div className="bg-white rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-xl p-4 sm:p-6 lg:p-8">
+            <div className="text-center mb-6 sm:mb-8">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6 lg:mb-8">
+                Preference Details
+              </h2>
+              
+              {/* Progress Indicators - Mobile optimized */}
+              <div className="flex justify-center space-x-2 sm:space-x-3 lg:space-x-4 mb-4 sm:mb-6 lg:mb-8">
+                {steps.map((_, index) => (
+                  <div
+                    key={index}
+                    className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center text-white font-medium text-xs sm:text-sm lg:text-base ${
+                      index <= currentStep 
+                        ? index === currentStep 
+                          ? 'bg-gray-800' 
+                          : 'bg-gray-600'
+                        : 'bg-gray-200 text-gray-500'
+                    }`}
+                  >
+                    {index + 1}
+                  </div>
+                ))}
+              </div>
+
+              <h3 className="text-base sm:text-lg lg:text-xl font-medium text-gray-900 mb-4 sm:mb-6">
+                {steps[currentStep].title}
+              </h3>
             </div>
 
-            <h3 className="text-xl font-medium text-gray-900 mb-6">
-              {steps[currentStep].title}
-            </h3>
-          </div>
+            {/* Error Message */}
+            {error && (
+              <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
 
-          {/* Error Message */}
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-600">{error}</p>
+            {/* Step Content */}
+            <div className="mb-6 sm:mb-8">
+              <CurrentStepComponent 
+                formData={formData}
+                updateFormData={updateFormData}
+              />
             </div>
-          )}
 
-          {/* Step Content */}
-          <div className="mb-8">
-            <CurrentStepComponent 
-              formData={formData}
-              updateFormData={updateFormData}
-            />
-          </div>
+            {/* Navigation - Mobile optimized */}
+            <div className="flex flex-col-reverse sm:flex-row justify-between items-stretch sm:items-center space-y-reverse space-y-3 sm:space-y-0 sm:space-x-4">
+              <button
+                onClick={handlePrevious}
+                disabled={currentStep === 0}
+                className="w-full sm:w-auto flex items-center justify-center space-x-2 px-4 sm:px-6 py-3 text-gray-600 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base border border-gray-200 rounded-lg hover:bg-gray-50"
+              >
+                <IoArrowBackOutline className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span>Previous</span>
+              </button>
 
-          {/* Navigation */}
-          <div className="flex justify-between items-center">
-            <button
-              onClick={handlePrevious}
-              disabled={currentStep === 0}
-              className="flex items-center space-x-2 px-6 py-3 text-gray-600 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <IoArrowBackOutline className="w-5 h-5" />
-              <span>Previous</span>
-            </button>
-
-            <button
-              onClick={handleNext}
-              disabled={loading}
-              className="flex items-center space-x-2 px-8 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-            >
-              <span>
-                {currentStep === totalSteps - 1 
-                  ? loading ? 'Saving...' : 'Complete'
-                  : 'Next'
-                }
-              </span>
-              {currentStep < totalSteps - 1 && <IoArrowForwardOutline className="w-5 h-5" />}
-            </button>
+              <button
+                onClick={handleNext}
+                disabled={loading}
+                className="w-full sm:w-auto flex items-center justify-center space-x-2 px-6 sm:px-8 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base font-medium"
+              >
+                <span>
+                  {currentStep === totalSteps - 1 
+                    ? loading ? 'Saving...' : 'Complete'
+                    : 'Next'
+                  }
+                </span>
+                {currentStep < totalSteps - 1 && <IoArrowForwardOutline className="w-4 h-4 sm:w-5 sm:h-5" />}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -241,9 +245,9 @@ const AcademicInterestStep = ({ formData, updateFormData }) => {
           ? formData.academicInterests.join(', ') 
           : formData.academicInterests}
         onChange={(e) => updateFormData('academicInterests', e.target.value)}
-        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+        className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm sm:text-base"
       />
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 mt-4">
         {academicFields.map((field) => (
           <button
             key={field}
@@ -259,7 +263,7 @@ const AcademicInterestStep = ({ formData, updateFormData }) => {
                 updateFormData('academicInterests', [...current, field]);
               }
             }}
-            className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
+            className={`px-2 sm:px-3 py-2 text-xs sm:text-sm rounded-lg border transition-colors ${
               (Array.isArray(formData.academicInterests) 
                 ? formData.academicInterests 
                 : formData.academicInterests.split(',').map(item => item.trim())
@@ -290,7 +294,7 @@ const StudyLevelStep = ({ formData, updateFormData }) => {
       {studyLevels.map((level) => (
         <label
           key={level.value}
-          className={`flex items-center p-4 border rounded-lg cursor-pointer transition-colors ${
+          className={`flex items-center p-3 sm:p-4 border rounded-lg cursor-pointer transition-colors ${
             formData.studyLevel === level.value
               ? 'border-gray-800 bg-gray-100'
               : 'border-gray-200 hover:bg-gray-50'
@@ -304,7 +308,7 @@ const StudyLevelStep = ({ formData, updateFormData }) => {
             onChange={(e) => updateFormData('studyLevel', e.target.value)}
             className="sr-only"
           />
-          <div className={`w-4 h-4 rounded-full border-2 mr-3 ${
+          <div className={`w-4 h-4 rounded-full border-2 mr-3 flex-shrink-0 ${
             formData.studyLevel === level.value
               ? 'border-gray-800 bg-gray-800'
               : 'border-gray-300'
@@ -313,7 +317,7 @@ const StudyLevelStep = ({ formData, updateFormData }) => {
               <div className="w-2 h-2 bg-white rounded-full m-0.5"></div>
             )}
           </div>
-          <span className="text-gray-900">{level.label}</span>
+          <span className="text-gray-900 text-sm sm:text-base">{level.label}</span>
         </label>
       ))}
     </div>
@@ -331,9 +335,9 @@ const LocationStep = ({ formData, updateFormData }) => {
           ? formData.preferredCountries.join(', ') 
           : formData.preferredCountries}
         onChange={(e) => updateFormData('preferredCountries', e.target.value)}
-        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+        className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm sm:text-base"
       />
-      <p className="text-sm text-gray-500">
+      <p className="text-xs sm:text-sm text-gray-500 px-1">
         Examples: United States, United Kingdom, Canada, Australia, Germany
       </p>
     </div>
@@ -363,7 +367,7 @@ const BudgetScoresStep = ({ formData, updateFormData }) => {
         <label className="block text-sm font-medium text-gray-700 mb-3">
           Budget Range (USD per year)
         </label>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           <div>
             <label className="block text-xs text-gray-500 mb-1">Minimum</label>
             <input
@@ -371,7 +375,7 @@ const BudgetScoresStep = ({ formData, updateFormData }) => {
               placeholder="0"
               value={formData.budgetRange.min}
               onChange={(e) => updateBudgetRange('min', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm sm:text-base"
             />
           </div>
           <div>
@@ -381,7 +385,7 @@ const BudgetScoresStep = ({ formData, updateFormData }) => {
               placeholder="100000"
               value={formData.budgetRange.max}
               onChange={(e) => updateBudgetRange('max', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm sm:text-base"
             />
           </div>
         </div>
@@ -392,7 +396,7 @@ const BudgetScoresStep = ({ formData, updateFormData }) => {
         <label className="block text-sm font-medium text-gray-700 mb-3">
           Test Scores (Optional)
         </label>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           <div>
             <label className="block text-xs text-gray-500 mb-1">SAT (400-1600)</label>
             <input
@@ -402,7 +406,7 @@ const BudgetScoresStep = ({ formData, updateFormData }) => {
               max="1600"
               value={formData.testScores.sat}
               onChange={(e) => updateTestScore('sat', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm sm:text-base"
             />
           </div>
           <div>
@@ -414,7 +418,7 @@ const BudgetScoresStep = ({ formData, updateFormData }) => {
               max="120"
               value={formData.testScores.toefl}
               onChange={(e) => updateTestScore('toefl', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm sm:text-base"
             />
           </div>
           <div>
@@ -427,7 +431,7 @@ const BudgetScoresStep = ({ formData, updateFormData }) => {
               step="0.5"
               value={formData.testScores.ielts}
               onChange={(e) => updateTestScore('ielts', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm sm:text-base"
             />
           </div>
           <div>
@@ -439,7 +443,7 @@ const BudgetScoresStep = ({ formData, updateFormData }) => {
               max="340"
               value={formData.testScores.gre}
               onChange={(e) => updateTestScore('gre', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm sm:text-base"
             />
           </div>
         </div>
