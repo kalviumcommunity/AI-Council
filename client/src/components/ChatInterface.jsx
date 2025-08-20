@@ -5,6 +5,9 @@ import {
   IoAttachOutline,
   IoEllipsisVerticalOutline
 } from 'react-icons/io5';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
 import { chatAPI, preferencesAPI, recommendationsAPI, handleAPIError } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -172,7 +175,18 @@ const ChatInterface = ({ isCompact = false, onPreferenceChange }) => {
                   ? 'bg-red-50 text-red-800 border border-red-200' 
                   : 'bg-gray-100 text-gray-800'
             }`}>
-              <p className="text-sm whitespace-pre-wrap">{message.message}</p>
+              {message.type === 'ai' && !message.isError ? (
+                <div className="text-sm prose prose-sm max-w-none prose-headings:text-gray-800 prose-p:text-gray-800 prose-strong:text-gray-900 prose-code:bg-gray-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-200 prose-pre:text-gray-800">
+                  <ReactMarkdown 
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeHighlight]}
+                  >
+                    {message.message}
+                  </ReactMarkdown>
+                </div>
+              ) : (
+                <p className="text-sm whitespace-pre-wrap">{message.message}</p>
+              )}
               <p className={`text-xs mt-1 ${
                 message.type === 'user' 
                   ? 'text-gray-300' 

@@ -176,9 +176,12 @@ const Dashboard = () => {
                                         </div>
                                         <div className="relative">
                                             <img 
-                                                src={`https://images.unsplash.com/photo-${index % 2 === 0 ? '1562516155-e0c1ee44059b' : '1583847268964-b28dc8f51f92'}?w=400&h=120&fit=crop`} 
+                                                src={university.imageUrl || `https://images.unsplash.com/photo-${index % 2 === 0 ? '1562516155-e0c1ee44059b' : '1583847268964-b28dc8f51f92'}?w=400&h=120&fit=crop`} 
                                                 alt={university.name}
                                                 className="w-full h-24 object-cover rounded-xl"
+                                                onError={(e) => {
+                                                    e.target.src = 'https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=120&fit=crop&crop=center';
+                                                }}
                                             />
                                             {university.fitScore && (
                                                 <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1">

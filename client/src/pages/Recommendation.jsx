@@ -453,9 +453,12 @@ const Recommendation = () => {
                                         {/* University Image */}
                                         <div className="relative mb-4">
                                             <img 
-                                                src={`https://images.unsplash.com/photo-${Math.random() > 0.5 ? '1562516155-e0c1ee44059b' : '1583847268964-b28dc8f51f92'}?w=400&h=200&fit=crop`} 
+                                                src={university.imageUrl || `https://images.unsplash.com/photo-${Math.random() > 0.5 ? '1562516155-e0c1ee44059b' : '1583847268964-b28dc8f51f92'}?w=400&h=200&fit=crop`} 
                                                 alt={university.name}
                                                 className="w-full h-32 sm:h-40 object-cover rounded-xl"
+                                                onError={(e) => {
+                                                    e.target.src = 'https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=300&fit=crop&crop=center';
+                                                }}
                                             />
                                             <div className="absolute top-2 sm:top-3 right-2 sm:right-3 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1">
                                                 <div className="flex items-center space-x-1">

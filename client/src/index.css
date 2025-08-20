@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "highlight.js/styles/github.css";
 
 /* Global styles with Poppins font */
 * {
@@ -62,4 +63,118 @@ html {
 
 .animate-gradient {
   animation: gradientMove 8s ease-in-out infinite;
+}
+
+/* Syntax highlighting styles for code blocks in chat */
+.hljs {
+  background: #f8f9fa !important;
+  color: #24292e !important;
+  padding: 0.5rem !important;
+  border-radius: 0.375rem !important;
+  font-size: 0.875rem !important;
+  line-height: 1.5 !important;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in,
+.hljs-name,
+.hljs-tag {
+  color: #d73a49 !important;
+}
+
+.hljs-string,
+.hljs-attr,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+  color: #032f62 !important;
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-attribute {
+  color: #6f42c1 !important;
+}
+
+.hljs-variable,
+.hljs-template-variable {
+  color: #e36209 !important;
+}
+
+.hljs-comment,
+.hljs-quote,
+.hljs-deletion,
+.hljs-meta {
+  color: #6a737d !important;
+}
+
+.hljs-number,
+.hljs-regexp,
+.hljs-literal,
+.hljs-type,
+.hljs-link {
+  color: #005cc5 !important;
+}
+
+/* Custom styles for markdown in chat */
+.prose {
+  color: inherit !important;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+  font-weight: 600 !important;
+}
+
+.prose p {
+  margin-top: 0.25rem !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.prose ul,
+.prose ol {
+  margin-top: 0.25rem !important;
+  margin-bottom: 0.25rem !important;
+  padding-left: 1rem !important;
+}
+
+.prose li {
+  margin-top: 0.125rem !important;
+  margin-bottom: 0.125rem !important;
+}
+
+.prose blockquote {
+  border-left: 4px solid #e5e7eb !important;
+  padding-left: 1rem !important;
+  margin: 0.5rem 0 !important;
+  font-style: italic !important;
+  color: #6b7280 !important;
+}
+
+.prose code {
+  background-color: #f3f4f6 !important;
+  padding: 0.125rem 0.25rem !important;
+  border-radius: 0.25rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+}
+
+.prose pre {
+  background-color: #f8f9fa !important;
+  padding: 0.75rem !important;
+  border-radius: 0.5rem !important;
+  overflow-x: auto !important;
+  margin: 0.5rem 0 !important;
+}
+
+.prose pre code {
+  background-color: transparent !important;
+  padding: 0 !important;
 }
