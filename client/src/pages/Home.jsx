@@ -1,7 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Home = () => {
+  const { user, logout } = useAuth();
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Animated gradient background */}
@@ -18,18 +21,40 @@ const Home = () => {
             <h2 className="text-2xl font-bold">NextStep AI</h2>
           </div>
           <div className="flex items-center space-x-4">
-            <Link 
-              to="/login" 
-              className="text-white hover:text-gray-300 transition-colors duration-200 px-4 py-2"
-            >
-              Log in
-            </Link>
-            <Link 
-              to="/signup" 
-              className="bg-transparent border-2 border-white text-white px-6 py-2 rounded-lg hover:bg-white hover:text-gray-900 transition-all duration-200"
-            >
-              Get Started
-            </Link>
+            {user ? (
+              // Authenticated user navigation
+              <>
+                <span className="text-white">Welcome, {user.name || user.email}</span>
+                <button 
+                  onClick={logout}
+                  className="text-white hover:text-gray-300 transition-colors duration-200 px-4 py-2"
+                >
+                  Logout
+                </button>
+                <Link 
+                  to="/dashboard" 
+                  className="bg-transparent border-2 border-white text-white px-6 py-2 rounded-lg hover:bg-white hover:text-gray-900 transition-all duration-200"
+                >
+                  Dashboard
+                </Link>
+              </>
+            ) : (
+              // Unauthenticated user navigation
+              <>
+                <Link 
+                  to="/login" 
+                  className="text-white hover:text-gray-300 transition-colors duration-200 px-4 py-2"
+                >
+                  Log in
+                </Link>
+                <Link 
+                  to="/signup" 
+                  className="bg-transparent border-2 border-white text-white px-6 py-2 rounded-lg hover:bg-white hover:text-gray-900 transition-all duration-200"
+                >
+                  Get Started
+                </Link>
+              </>
+            )}
           </div>
         </nav>
 
@@ -42,12 +67,23 @@ const Home = () => {
             The right guidance shapes not just choices,<br />
             but the journey that turns them into opportunities.
           </p>
-          <Link 
-            to="/signup" 
-            className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-white hover:text-gray-900 transition-all duration-200"
-          >
-            Get Started
-          </Link>
+          {user ? (
+            // Authenticated user - show Dashboard button
+            <Link 
+              to="/dashboard" 
+              className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-white hover:text-gray-900 transition-all duration-200"
+            >
+              Go to Dashboard
+            </Link>
+          ) : (
+            // Unauthenticated user - show Get Started button
+            <Link 
+              to="/signup" 
+              className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-white hover:text-gray-900 transition-all duration-200"
+            >
+              Get Started
+            </Link>
+          )}
         </div>
       </div>
     </div>

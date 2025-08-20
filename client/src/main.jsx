@@ -3,11 +3,14 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
+import { SupabaseAuthProvider } from './context/SupabaseAuthContext'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <AuthProvider>
-      <App />
-    </AuthProvider>
+    <SupabaseAuthProvider>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </SupabaseAuthProvider>
   </StrictMode>,
 )

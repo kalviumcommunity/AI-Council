@@ -1,7 +1,16 @@
-import React, { createContext, useState, useEffect } from 'react';
-import { authAPI } from '../services/api';
+import React, { createContext, useState, useEffect, useContext } from 'react';
+import { authAPI, handleAPIError } from '../services/api';
 
 export const AuthContext = createContext();
+
+// Custom hook to use the AuthContext
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -14,16 +23,28 @@ export const AuthProvider = ({ children }) => {
       authAPI.getProfile()
         .then(response => {
           setUser(response.data.user);
+          // Store user data in localStorage for persistence
+          localStorage.setItem('user', JSON.stringify(response.data.user));
         })
         .catch(() => {
           // Token is invalid
           localStorage.removeItem('authToken');
+          localStorage.removeItem('user');
           setToken(null);
         })
         .finally(() => {
           setLoading(false);
         });
     } else {
+      // Check if user data exists in localStorage
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try {
+          setUser(JSON.parse(storedUser));
+        } catch (error) {
+          localStorage.removeItem('user');
+        }
+      }
       setLoading(false);
     }
   }, [token]);
@@ -34,14 +55,15 @@ export const AuthProvider = ({ children }) => {
       const { token: authToken, user: userData } = response.data;
       
       localStorage.setItem('authToken', authToken);
+      localStorage.setItem('user', JSON.stringify(userData));
       setToken(authToken);
       setUser(userData);
       
-      return { success: true };
+      return { success: true, user: userData };
     } catch (error) {
       return { 
         success: false, 
-        error: error.response?.data?.message || 'Login failed' 
+        error: handleAPIError(error)
       };
     }
   };
@@ -52,14 +74,15 @@ export const AuthProvider = ({ children }) => {
       const { token: authToken, user: newUser } = response.data;
       
       localStorage.setItem('authToken', authToken);
+      localStorage.setItem('user', JSON.stringify(newUser));
       setToken(authToken);
       setUser(newUser);
       
-      return { success: true };
+      return { success: true, user: newUser };
     } catch (error) {
       return { 
         success: false, 
-        error: error.response?.data?.message || 'Signup failed' 
+        error: handleAPIError(error)
       };
     }
   };
@@ -71,9 +94,15 @@ export const AuthProvider = ({ children }) => {
       console.error('Logout error:', error);
     } finally {
       localStorage.removeItem('authToken');
+      localStorage.removeItem('user');
       setToken(null);
       setUser(null);
     }
+  };
+
+  const updateUser = (updatedUser) => {
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
   };
 
   const value = {
@@ -81,8 +110,9 @@ export const AuthProvider = ({ children }) => {
     login,
     signup,
     logout,
+    updateUser,
     loading,
-    isAuthenticated: !!user,
+    isAuthenticated: !!user && !!token,
   };
 
   return (
