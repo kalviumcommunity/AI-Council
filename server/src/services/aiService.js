@@ -75,7 +75,7 @@ class AIService {
   /**
    * Generate chatbot response
    */
-  async generateChatResponse(message, preferences = null) {
+  async generateChatResponse(message, preferences = null, recommendations = null) {
     try {
       let prompt = `You are an experienced university counselor and educational advisor. You help students find the right universities and answer their questions about higher education.
 
@@ -92,11 +92,31 @@ Student's Preferences:
 - Test Scores: ${this.formatTestScores(preferences.testScores)}`;
       }
 
+      if (recommendations && recommendations.universities && recommendations.universities.length > 0) {
+        prompt += `
+
+Previously Recommended Universities:`;
+        recommendations.universities.forEach((uni, index) => {
+          prompt += `
+${index + 1}. ${uni.name} (${uni.location.city}, ${uni.location.country})
+   - Fit Score: ${uni.fitScore}%
+   - Programs: ${uni.programs?.join(', ') || 'Various programs'}
+   - Tuition: $${uni.tuitionRange?.min || 'N/A'} - $${uni.tuitionRange?.max || 'N/A'}
+   - Why recommended: ${uni.reasons}`;
+        });
+        
+        if (recommendations.aiResponse) {
+          prompt += `
+
+Previous recommendation summary: ${recommendations.aiResponse.substring(0, 500)}...`;
+        }
+      }
+
       prompt += `
 
 Student's Question: "${message}"
 
-Please provide a helpful, informative response. If the question is about university recommendations, provide specific suggestions with reasoning. Keep your response conversational but professional.`;
+Please provide a helpful, informative response. If the question relates to the recommended universities above, reference them specifically. If the student asks about specific universities from their recommendations, provide detailed information about those institutions. Keep your response conversational but professional.`;
 
       const response = await this.callGeminiAPI(prompt, {
         temperature: 0.8,
