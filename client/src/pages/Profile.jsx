@@ -153,9 +153,9 @@ const Profile = () => {
                         </div>
                         
                         <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-4 sm:mb-6">
-                            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto sm:mx-0">
+                            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-800 rounded-full flex items-center justify-center sm:mx-0 sm:mr-6">
                                 <IoPersonOutline className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-                            </div>
+                            </div>  
                             <div className="text-center sm:text-left">
                                 <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900">
                                     {user?.name || 'Welcome User'}

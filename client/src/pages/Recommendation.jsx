@@ -453,12 +453,28 @@ const Recommendation = () => {
                                         {/* University Image */}
                                         <div className="relative mb-4">
                                             <img 
-                                                src={university.imageUrl || `https://images.unsplash.com/photo-${Math.random() > 0.5 ? '1562516155-e0c1ee44059b' : '1583847268964-b28dc8f51f92'}?w=400&h=200&fit=crop`} 
-                                                alt={university.name}
+                                                src={university.imageUrl || `https://images.unsplash.com/photo-1562774053-701939374585?w=800&h=600&fit=crop&crop=center&q=80`} 
+                                                alt={`${university.name} campus`}
                                                 className="w-full h-32 sm:h-40 object-cover rounded-xl"
                                                 onError={(e) => {
-                                                    e.target.src = 'https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=300&fit=crop&crop=center';
+                                                    console.log(`Image failed for ${university.name}: ${e.target.src}`);
+                                                    // First fallback: Try a different university image
+                                                    if (e.target.src.includes('unsplash.com/photo-1562774053')) {
+                                                        e.target.src = 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?w=800&h=600&fit=crop&crop=center&q=80';
+                                                    } else if (e.target.src.includes('unsplash.com/photo-1583847268964')) {
+                                                        // Second fallback: Generic campus image
+                                                        e.target.src = 'https://images.unsplash.com/photo-1607237138185-eedd9c632b0b?w=800&h=600&fit=crop&crop=center&q=80';
+                                                    } else {
+                                                        // Final fallback: Academic building
+                                                        e.target.src = 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&h=600&fit=crop&crop=center&q=80';
+                                                    }
                                                 }}
+                                                onLoad={(e) => {
+                                                    if (university.imageUrl && !e.target.src.includes('unsplash.com')) {
+                                                        console.log(`Successfully loaded AI-provided image for ${university.name}`);
+                                                    }
+                                                }}
+                                                loading="lazy"
                                             />
                                             <div className="absolute top-2 sm:top-3 right-2 sm:right-3 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1">
                                                 <div className="flex items-center space-x-1">
