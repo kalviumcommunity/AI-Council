@@ -140,6 +140,14 @@ For each university, include:
 - Approximate ranking (if known)
 - Fit score (0-100)
 - Estimated tuition range
+- University image URL (use a real university image URL or a generic university/campus image)
+
+IMPORTANT: For imageUrl, provide a direct link to a university campus image. You can use:
+- Real university website image URLs
+- Unsplash university/campus images (e.g., https://images.unsplash.com/photo-1562774053-701939374585)
+- Wikipedia university images
+- Generic academic building images
+Make sure the URL is a direct image link that ends with .jpg, .png, or similar.
 
 Format your response as JSON with this structure:
 {
@@ -158,7 +166,8 @@ Format your response as JSON with this structure:
         "max": 35000
       },
       "programs": ["Program 1", "Program 2"],
-      "website": "https://university.edu"
+      "website": "https://university.edu",
+      "imageUrl": "https://example.com/university-image.jpg"
     }
   ],
   "summary": "Comprehensive explanation of the recommendations and advice for the student..."
@@ -197,7 +206,8 @@ Ensure the JSON is valid and properly formatted.`;
                 reasons: uni.reasons || 'Good fit for your preferences',
                 tuitionRange: uni.tuitionRange || { min: 0, max: 0 },
                 programs: uni.programs || [],
-                website: uni.website || ''
+                website: uni.website || '',
+                imageUrl: uni.imageUrl || 'https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=300&fit=crop&crop=center'
               })),
               aiResponse: parsedResponse.summary || response
             };
