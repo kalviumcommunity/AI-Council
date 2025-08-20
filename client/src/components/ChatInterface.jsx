@@ -53,7 +53,7 @@ const ChatInterface = ({ isCompact = false, onPreferenceChange }) => {
     setError('');
 
     try {
-      // Get user preferences to send with the message
+      // Get user preferences and send chat message
       let preferencesId = null;
       try {
         const prefsResponse = await preferencesAPI.get();
@@ -65,7 +65,7 @@ const ChatInterface = ({ isCompact = false, onPreferenceChange }) => {
         console.log('No preferences found, sending message without preferences');
       }
 
-      // Call the real API with preferences
+      // Send message and get AI response
       const response = await chatAPI.sendMessage(messageToSend, preferencesId);
       
       const aiMessage = {
@@ -77,37 +77,33 @@ const ChatInterface = ({ isCompact = false, onPreferenceChange }) => {
 
       setMessages(prev => [...prev, aiMessage]);
       
-      // Check if this conversation might have changed user preferences
+      // Auto-generate recommendations if conversation suggests preference changes
       const preferenceKeywords = [
         'prefer', 'change', 'different', 'budget', 'country', 'major', 
-        'study', 'university', 'location', 'cost', 'program', 'degree'
+        'study', 'university', 'location', 'cost', 'program', 'degree',
+        'recommend', 'suggest', 'find', 'looking for', 'interested'
       ];
       
       const conversationText = messageToSend.toLowerCase() + ' ' + response.data.response.toLowerCase();
-      const hasPreferenceChanges = preferenceKeywords.some(keyword => 
+      const shouldGenerateRecommendations = preferenceKeywords.some(keyword => 
         conversationText.includes(keyword)
       );
       
-      if (hasPreferenceChanges) {
-        // Regenerate recommendations in the background
+      if (shouldGenerateRecommendations && preferencesId) {
         try {
-          const prefsResponse = await preferencesAPI.get();
-          if (prefsResponse.data.preferences) {
-            await recommendationsAPI.generate(prefsResponse.data.preferences._id);
-            // Notify parent component about preference changes if callback is provided
-            if (onPreferenceChange) {
-              onPreferenceChange();
-            }
+          console.log('Auto-generating recommendations based on conversation...');
+          await recommendationsAPI.generate(preferencesId);
+          if (onPreferenceChange) {
+            onPreferenceChange();
           }
         } catch (recError) {
-          console.log('Background recommendation update failed:', recError);
+          console.log('Background recommendation generation failed:', recError);
         }
       }
     } catch (error) {
       console.error('Chat error:', error);
       setError(handleAPIError(error));
       
-      // Add error message to chat
       const errorMessage = {
         id: Date.now() + 1,
         type: 'ai',
@@ -136,6 +132,11 @@ const ChatInterface = ({ isCompact = false, onPreferenceChange }) => {
   const handleQuickQuestion = (question) => {
     setCurrentMessage(question);
     inputRef.current?.focus();
+    // Auto-submit the question
+    setTimeout(() => {
+      const submitEvent = { preventDefault: () => {} };
+      handleSendMessage(submitEvent);
+    }, 100);
   };
 
   return (
