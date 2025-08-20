@@ -7,8 +7,10 @@ const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
   },
   timeout: 30000, // 30 second timeout
+  withCredentials: true, // Include credentials in requests
 });
 
 // Add auth token to requests if available
