@@ -138,7 +138,7 @@ Please provide a helpful, informative response. If the question relates to the r
       console.log('=== AI SERVICE: GENERATING RECOMMENDATIONS ===');
       console.log('Preferences received:', preferences);
       
-      const prompt = `You are a university counselor. Based on the following student preferences, provide university recommendations.
+      const prompt = `You are a university counselor with access to university databases and image resources. Based on the following student preferences, provide university recommendations with REAL university images.
 
 Student Preferences:
 - Academic Interests: ${preferences.academicInterests?.join(', ')}
@@ -160,14 +160,25 @@ For each university, include:
 - Approximate ranking (if known)
 - Fit score (0-100)
 - Estimated tuition range
-- University image URL (use a real university image URL or a generic university/campus image)
+- University image URL (IMPORTANT: Provide a real, working image URL for the university)
 
-IMPORTANT: For imageUrl, provide a direct link to a university campus image. You can use:
-- Real university website image URLs
-- Unsplash university/campus images (e.g., https://images.unsplash.com/photo-1562774053-701939374585)
-- Wikipedia university images
-- Generic academic building images
-Make sure the URL is a direct image link that ends with .jpg, .png, or similar.
+CRITICAL FOR IMAGE URLs: 
+1. Provide actual, working image URLs for each university's campus or iconic buildings
+2. Use these specific image sources:
+   - Official university website images (preferred)
+   - Wikipedia Commons university images
+   - High-quality Unsplash photos tagged with the university name
+   - Wikimedia university campus photos
+3. Ensure URLs are direct image links (ending in .jpg, .png, .webp)
+4. Each university should have a unique, relevant image
+5. Test that the URL would work in an img tag
+6. For well-known universities, use their iconic campus shots
+7. Examples of good URL patterns:
+   - https://upload.wikimedia.org/wikipedia/commons/[path]/[image].jpg
+   - https://images.unsplash.com/photo-[id]?w=800&h=600&fit=crop&q=80
+   - https://www.[university].edu/images/[campus-photo].jpg
+
+IMPORTANT: Do NOT use placeholder or example URLs. Provide real, accessible image URLs that show the actual university campus or buildings.
 
 Format your response as JSON with this structure:
 {
@@ -193,6 +204,8 @@ Format your response as JSON with this structure:
   "summary": "Comprehensive explanation of the recommendations and advice for the student..."
 }
 
+REMEMBER: Each university MUST have a unique, working imageUrl that shows the actual university campus or buildings. Do not use generic stock images. Research and provide real university image URLs.
+
 Ensure the JSON is valid and properly formatted.`;
 
       console.log('Calling Gemini API with prompt...');
@@ -214,6 +227,14 @@ Ensure the JSON is valid and properly formatted.`;
           // Validate the structure
           if (parsedResponse.universities && Array.isArray(parsedResponse.universities)) {
             console.log('Valid university recommendations found:', parsedResponse.universities.length);
+            
+            // Log image URL information
+            parsedResponse.universities.forEach((uni, index) => {
+              console.log(`University ${index + 1}: ${uni.name}`);
+              console.log(`  - Image URL: ${uni.imageUrl || 'NOT PROVIDED'}`);
+              console.log(`  - Location: ${uni.location?.city}, ${uni.location?.country}`);
+            });
+            
             const result = {
               universities: parsedResponse.universities.map(uni => ({
                 name: uni.name || 'Unknown University',
@@ -227,7 +248,7 @@ Ensure the JSON is valid and properly formatted.`;
                 tuitionRange: uni.tuitionRange || { min: 0, max: 0 },
                 programs: uni.programs || [],
                 website: uni.website || '',
-                imageUrl: uni.imageUrl || 'https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=300&fit=crop&crop=center'
+                imageUrl: uni.imageUrl || `https://images.unsplash.com/photo-1562774053-701939374585?w=800&h=600&fit=crop&crop=center&q=80`
               })),
               aiResponse: parsedResponse.summary || response
             };
