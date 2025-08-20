@@ -7,7 +7,7 @@
 
 ### Deployed Link:
 - Frontend - https://nextstep-ai-three.vercel.app/
-- Backend - https://ai-council.onrender.com
+- Backend - https://nextstep-ai-te4p.onrender.com
 
 ## 🎨 Design
 
