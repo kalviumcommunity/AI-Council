@@ -233,8 +233,8 @@ const Signup = () => {
         </div>
       </div>
 
-      {/* Right side - Image */}
-      <div className="w-full lg:w-1/2 relative overflow-hidden min-h-[40vh] lg:min-h-screen">
+      {/* Right side - Image - Hidden on small screens for better mobile experience */}
+      <div className="hidden lg:block w-full lg:w-1/2 relative overflow-hidden lg:min-h-screen">
         <img 
           src={signupCover}
           alt="Graduation ceremony"

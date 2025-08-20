@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom';
 import { 
     IoSchoolOutline, 
     IoLocationOutline,
-    IoReloadOutline
+    IoReloadOutline,
+    IoMenuOutline,
+    IoCloseOutline
 } from 'react-icons/io5';
 import Sidebar from '../components/Sidebar';
 import ChatInterface from '../components/ChatInterface';
@@ -13,10 +15,23 @@ const Dashboard = () => {
     const [recommendations, setRecommendations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     useEffect(() => {
         loadRecommendations();
     }, []);
+
+    // Handle ESC key to close mobile sidebar
+    useEffect(() => {
+        const handleEscKey = (e) => {
+            if (e.key === 'Escape' && sidebarOpen) {
+                setSidebarOpen(false);
+            }
+        };
+
+        document.addEventListener('keydown', handleEscKey);
+        return () => document.removeEventListener('keydown', handleEscKey);
+    }, [sidebarOpen]);
 
     const loadRecommendations = async () => {
         try {
@@ -72,13 +87,35 @@ const Dashboard = () => {
 
     return (
         <div className="flex h-screen bg-gradient-to-r from-gray-100 to-purple-100">
+            {/* Mobile Header with Hamburger Menu */}
+            <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+                <button
+                    onClick={() => setSidebarOpen(!sidebarOpen)}
+                    className="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                    {sidebarOpen ? <IoCloseOutline className="w-6 h-6" /> : <IoMenuOutline className="w-6 h-6" />}
+                </button>
+                <h1 className="text-lg font-semibold text-gray-900">Dashboard</h1>
+                <div className="w-10 h-10"></div> {/* Spacer for centering */}
+            </div>
+
+            {/* Mobile Sidebar Overlay */}
+            {sidebarOpen && (
+                <div 
+                    className="lg:hidden fixed inset-0 z-40 bg-black bg-opacity-50"
+                    onClick={() => setSidebarOpen(false)}
+                />
+            )}
+
             {/* Sidebar Component */}
-            <Sidebar />
+            <div className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 lg:z-auto transition-transform duration-300 ease-in-out`}>
+                <Sidebar onNavigate={() => setSidebarOpen(false)} />
+            </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 flex">
-                {/* Recommendations Section */}
-                <div className="w-1/3 p-6">
+            <div className="flex-1 flex pt-16 lg:pt-0">
+                {/* Recommendations Section - Hidden on mobile */}
+                <div className="hidden lg:block w-1/3 p-6">
                     <div className="flex items-center justify-between mb-6">
                         <h1 className="text-2xl font-normal text-gray-900">Recommendations</h1>
                         <Link 
@@ -171,8 +208,8 @@ const Dashboard = () => {
                     )}
                 </div>
 
-                {/* Chat Interface */}
-                <div className="w-2/3 bg-gray-50 border-l border-gray-200 border-opacity-60">
+                {/* Chat Interface - Full width on mobile, 2/3 width on desktop */}
+                <div className="w-full lg:w-2/3 bg-gray-50 lg:border-l border-gray-200 border-opacity-60">
                     <ChatInterface 
                         isCompact={true} 
                         onPreferenceChange={handlePreferenceChange}
