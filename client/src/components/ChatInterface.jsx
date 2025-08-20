@@ -53,8 +53,20 @@ const ChatInterface = ({ isCompact = false, onPreferenceChange }) => {
     setError('');
 
     try {
-      // Call the real API
-      const response = await chatAPI.sendMessage(messageToSend);
+      // Get user preferences to send with the message
+      let preferencesId = null;
+      try {
+        const prefsResponse = await preferencesAPI.get();
+        if (prefsResponse.data.preferences && prefsResponse.data.preferences._id) {
+          preferencesId = prefsResponse.data.preferences._id;
+          console.log('Sending chat message with preferences ID:', preferencesId);
+        }
+      } catch {
+        console.log('No preferences found, sending message without preferences');
+      }
+
+      // Call the real API with preferences
+      const response = await chatAPI.sendMessage(messageToSend, preferencesId);
       
       const aiMessage = {
         id: Date.now() + 1,
