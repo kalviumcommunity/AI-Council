@@ -1,0 +1,14 @@
+<!-- NextStep AI - Monochrome -->
+<svg width="256" height="256" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">NextStep AI</title>
+  <desc id="desc">Outlined rounded tile with stepped forward arrow.</desc>
+  <!-- Colors you can change quickly -->
+  <style>
+    :root { --stroke: #111827; --tile: #FFFFFF; }
+  </style>
+
+  <rect x="4" y="4" width="56" height="56" rx="12" fill="var(--tile)" stroke="var(--stroke)" stroke-width="1.5"/>
+  <path d="M16 44 L28 32 L40 40 L48 22" stroke="var(--stroke)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M48 22 L53 27 M48 22 L43 24" stroke="var(--stroke)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="54" cy="16" r="2.5" fill="var(--stroke)"/>
+</svg>

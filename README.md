@@ -5,6 +5,15 @@
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-18+-blue.svg)](https://reactjs.org/)
 
+### Deployed Link:
+- Frontend - https://nextstep-ai-three.vercel.app/
+- Backend - https://ai-council.onrender.com
+
+## 🎨 Design
+
+The UI/UX design is available on Figma:
+[View Design](https://www.figma.com/design/4dK6YoZA7fzZWwADyGNlJi/Untitled?node-id=0-1&t=1BX5ibGGStOd12mi-1)
+
 ## 📋 Table of Contents
 
 - [Overview](#overview)
@@ -201,10 +210,7 @@ AI-Council/
 └── package.json
 ```
 
-## 🎨 Design
 
-The UI/UX design is available on Figma:
-[View Design](https://www.figma.com/design/4dK6YoZA7fzZWwADyGNlJi/Untitled?node-id=0-1&t=1BX5ibGGStOd12mi-1)
 
 ## 🤝 Contributing
 
