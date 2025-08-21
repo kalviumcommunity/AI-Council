@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Link } from 'react-router-dom';
 import { 
     IoSchoolOutline, 
@@ -16,7 +18,7 @@ import {
     IoCloseOutline
 } from 'react-icons/io5';
 import Sidebar from '../components/Sidebar';
-import { recommendationsAPI, preferencesAPI, handleAPIError } from '../services/api';
+import { recommendationsAPI, preferencesAPI, handleAPIError, universityAPI } from '../services/api';
 
 const Recommendation = () => {
     const [recommendations, setRecommendations] = useState([]);
@@ -33,6 +35,28 @@ const Recommendation = () => {
         location: 'all',
         ranking: 'all'
     });
+    // Modal state
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalLoading, setModalLoading] = useState(false);
+    const [modalError, setModalError] = useState('');
+    const [modalDetails, setModalDetails] = useState('');
+    const [modalUniversity, setModalUniversity] = useState('');
+    // Fetch university details and open modal
+    const handleMoreInfo = async (universityName) => {
+        setModalOpen(true);
+        setModalLoading(true);
+        setModalError('');
+        setModalDetails('');
+        setModalUniversity(universityName);
+        try {
+            const response = await universityAPI.getDetails(universityName);
+            setModalDetails(response.data.details);
+        } catch (err) {
+            setModalError(handleAPIError(err));
+        } finally {
+            setModalLoading(false);
+        }
+    };
 
     useEffect(() => {
         loadRecommendations();
@@ -57,95 +81,12 @@ const Recommendation = () => {
             const response = await recommendationsAPI.getAll();
             const apiRecommendations = response.data.recommendations || [];
             
-            // If no recommendations from API, provide fallback mock data for testing
-            if (apiRecommendations.length === 0 || apiRecommendations.every(rec => !rec.universities || rec.universities.length === 0)) {
-                console.log('No API recommendations found, using fallback data');
-                const mockRecommendations = [{
-                    _id: 'mock-1',
-                    userId: 'mock-user',
-                    status: 'completed',
-                    universities: [
-                        {
-                            name: 'Harvard University',
-                            location: { city: 'Cambridge', country: 'United States' },
-                            ranking: 1,
-                            fitScore: 95,
-                            reasons: 'Harvard University is an excellent choice for your academic interests in Computer Science and Engineering. It offers world-class programs and research opportunities.',
-                            tuitionRange: { min: 50000, max: 55000 },
-                            programs: ['Computer Science', 'Engineering', 'Business'],
-                            website: 'https://harvard.edu'
-                        },
-                        {
-                            name: 'MIT',
-                            location: { city: 'Cambridge', country: 'United States' },
-                            ranking: 2,
-                            fitScore: 92,
-                            reasons: 'MIT is renowned for its engineering and computer science programs, perfect for your technical interests.',
-                            tuitionRange: { min: 48000, max: 53000 },
-                            programs: ['Computer Science', 'Engineering', 'Mathematics'],
-                            website: 'https://mit.edu'
-                        },
-                        {
-                            name: 'IIT Delhi',
-                            location: { city: 'New Delhi', country: 'India' },
-                            ranking: 185,
-                            fitScore: 88,
-                            reasons: 'IIT Delhi is one of the premier engineering institutes in India, offering excellent programs within your budget range.',
-                            tuitionRange: { min: 2000, max: 4000 },
-                            programs: ['Computer Science', 'Engineering', 'Technology'],
-                            website: 'https://iitd.ac.in'
-                        },
-                        {
-                            name: 'IIT Bombay',
-                            location: { city: 'Mumbai', country: 'India' },
-                            ranking: 172,
-                            fitScore: 87,
-                            reasons: 'IIT Bombay offers world-class engineering education at an affordable cost, perfect for your preferences.',
-                            tuitionRange: { min: 2000, max: 4000 },
-                            programs: ['Computer Science', 'Engineering', 'Research'],
-                            website: 'https://iitb.ac.in'
-                        },
-                        {
-                            name: 'NIT Trichy',
-                            location: { city: 'Tiruchirappalli', country: 'India' },
-                            ranking: 350,
-                            fitScore: 85,
-                            reasons: 'NIT Trichy is known for its strong engineering programs and excellent placement record in the technology sector.',
-                            tuitionRange: { min: 1500, max: 3000 },
-                            programs: ['Computer Science', 'Engineering', 'Electronics'],
-                            website: 'https://nitt.edu'
-                        }
-                    ],
-                    createdAt: new Date(),
-                    updatedAt: new Date()
-                }];
-                setRecommendations(mockRecommendations);
-            } else {
-                setRecommendations(apiRecommendations);
-            }
+            setRecommendations(apiRecommendations);
         } catch (error) {
             console.error('Error loading recommendations:', error);
             setError(handleAPIError(error));
             
-            // Show mock data even on error for better user experience
-            const mockRecommendations = [{
-                _id: 'mock-1',
-                userId: 'mock-user',
-                status: 'completed',
-                universities: [
-                    {
-                        name: 'Sample University',
-                        location: { city: 'Demo City', country: 'Demo Country' },
-                        ranking: 100,
-                        fitScore: 80,
-                        reasons: 'This is sample data shown because the AI service is not available.',
-                        tuitionRange: { min: 10000, max: 20000 },
-                        programs: ['Demo Program'],
-                        website: 'https://example.com'
-                    }
-                ]
-            }];
-            setRecommendations(mockRecommendations);
+            // ...existing code...
         } finally {
             setLoading(false);
         }
@@ -551,7 +492,7 @@ const Recommendation = () => {
                                         </div>
 
                                         {/* Action Buttons */}
-                                        <div className="mt-4">
+                                        <div className="mt-4 flex flex-col gap-2">
                                             {university.website ? (
                                                 <a
                                                     href={university.website}
@@ -566,7 +507,51 @@ const Recommendation = () => {
                                                     Website Not Available
                                                 </button>
                                             )}
+                                            <button
+                                                className="w-full px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors text-xs sm:text-sm font-medium"
+                                                onClick={() => handleMoreInfo(university.name)}
+                                            >
+                                                More Info
+                                            </button>
                                         </div>
+            {/* University Details Modal */}
+            {modalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    <div className="bg-white rounded-2xl shadow-lg max-w-lg w-full p-6 relative border border-gray-200">
+                        <button
+                            className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+                            onClick={() => setModalOpen(false)}
+                        >
+                            <IoCloseOutline className="w-6 h-6" />
+                        </button>
+                        <h2 className="text-lg font-semibold mb-2 text-gray-900">{modalUniversity} - Details</h2>
+                        {modalLoading ? (
+                            <div className="flex items-center justify-center py-8">
+                                <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full"></div>
+                                <span className="ml-3 text-black">Fetching details...</span>
+                            </div>
+                        ) : modalError ? (
+                            <div className="text-red-600 py-4">{modalError}</div>
+                        ) : (
+                            <div className="py-2 text-gray-800 text-sm prose max-w-none overflow-y-auto" style={{maxHeight: '50vh', overflowX: 'auto'}}>
+                                <ReactMarkdown
+                                    children={modalDetails.replace(/^```[\s\S]*?\n|```$/g, '')}
+                                    remarkPlugins={[remarkGfm]}
+                                    components={{
+                                        code({node, inline, className, children, ...props}) {
+                                            return !inline ? (
+                                                <pre className={className + " overflow-x-auto bg-gray-100 rounded p-2 text-sm"} {...props}><code>{children}</code></pre>
+                                            ) : (
+                                                <code className={className + " bg-gray-100 rounded px-1"} {...props}>{children}</code>
+                                            );
+                                        }
+                                    }}
+                                />
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
                                     </div>
                                 </div>
                             ))}

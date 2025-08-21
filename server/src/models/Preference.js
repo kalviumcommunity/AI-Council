@@ -74,6 +74,11 @@ const preferenceSchema = new mongoose.Schema({
   additionalRequirements: {
     type: String,
     maxlength: [500, 'Additional requirements cannot exceed 500 characters']
+  },
+  preferencesDescription: {
+    type: String,
+    default: '',
+    maxlength: [1000, 'Preferences description cannot exceed 1000 characters']
   }
 }, {
   timestamps: true

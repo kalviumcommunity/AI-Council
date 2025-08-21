@@ -1,3 +1,28 @@
+/**
+ * Update preferencesDescription for the current user
+ */
+const updatePreferencesDescription = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { preferencesDescription } = req.body;
+    const { id } = req.params;
+    if (typeof preferencesDescription !== 'string') {
+      return res.status(400).json({ error: 'preferencesDescription must be a string' });
+    }
+    const preferences = await Preference.findOneAndUpdate(
+      { _id: id, userId },
+      { $set: { preferencesDescription } },
+      { new: true }
+    );
+    if (!preferences) {
+      return res.status(404).json({ error: 'Preferences not found' });
+    }
+    res.json({ message: 'Preferences description updated', preferences });
+  } catch (error) {
+    console.error('Update preferencesDescription error:', error);
+    res.status(500).json({ error: 'Failed to update preferences description' });
+  }
+};
 const Preference = require('../models/Preference');
 
 /**
@@ -169,5 +194,6 @@ module.exports = {
   getPreferences,
   getPreferencesById,
   deletePreferences,
-  getAllUserPreferences
+  getAllUserPreferences,
+  updatePreferencesDescription
 };

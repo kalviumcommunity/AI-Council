@@ -9,6 +9,7 @@ const authRoutes = require('./src/routes/authRoutes');
 const preferencesRoutes = require('./src/routes/preferencesRoutes');
 const chatRoutes = require('./src/routes/chatRoutes');
 const recommendationsRoutes = require('./src/routes/recommendationsRoutes');
+const universityRoutes = require('./src/routes/universityRoutes');
 
 // Initialize Express app
 const app = express();
@@ -131,6 +132,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/preferences', preferencesRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/recommendations', recommendationsRoutes);
+app.use('/api/university', universityRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {

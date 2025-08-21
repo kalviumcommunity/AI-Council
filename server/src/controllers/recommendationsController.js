@@ -52,7 +52,11 @@ const generateRecommendations = async (req, res) => {
       // Generate recommendations using AI service
       console.log('Calling AI service to generate recommendations...');
       const startTime = Date.now();
-      const aiResult = await aiService.generateRecommendations(preferences);
+      // Pass preferencesDescription as additional constraint
+      const aiResult = await aiService.generateRecommendations({
+        ...preferences.toObject(),
+        preferencesDescription: preferences.preferencesDescription || ''
+      });
       const processingTime = Date.now() - startTime;
       
       console.log('AI service returned:', aiResult);
