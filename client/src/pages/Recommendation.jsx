@@ -9,11 +9,7 @@ import {
     IoTimeOutline,
     IoStarOutline,
     IoGlobeOutline,
-    IoFilterOutline,
     IoReloadOutline,
-    IoHeartOutline,
-    IoHeart,
-    IoChevronDownOutline,
     IoMenuOutline,
     IoCloseOutline
 } from 'react-icons/io5';
@@ -27,14 +23,7 @@ const Recommendation = () => {
     const [generating, setGenerating] = useState(false);
     const [error, setError] = useState('');
     const [savedUniversities, setSavedUniversities] = useState(new Set());
-    const [filterOpen, setFilterOpen] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [filters, setFilters] = useState({
-        budgetRange: 'all',
-        studyLevel: 'all',
-        location: 'all',
-        ranking: 'all'
-    });
     // Modal state
     const [modalOpen, setModalOpen] = useState(false);
     const [modalLoading, setModalLoading] = useState(false);
@@ -131,12 +120,8 @@ const Recommendation = () => {
     };
 
     const formatCurrency = (amount) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
-        }).format(amount);
+    // Always show rupee symbol and format as INR
+    return `₹${amount?.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
     };
 
     const getUniversityDuration = (studyLevel) => {
@@ -149,24 +134,7 @@ const Recommendation = () => {
         }
     };
 
-    const filteredRecommendations = recommendations.filter(rec => {
-        return rec.universities?.filter(uni => {
-            if (filters.budgetRange !== 'all') {
-                const maxBudget = uni.tuitionRange?.max || 0;
-                const budgetFilter = parseInt(filters.budgetRange);
-                if (maxBudget > budgetFilter) return false;
-            }
-            if (filters.location !== 'all' && !uni.location?.country?.toLowerCase().includes(filters.location.toLowerCase())) {
-                return false;
-            }
-            if (filters.ranking !== 'all') {
-                const ranking = uni.ranking || 999;
-                const rankingFilter = parseInt(filters.ranking);
-                if (ranking > rankingFilter) return false;
-            }
-            return true;
-        }).length > 0;
-    });
+    const filteredRecommendations = recommendations;
 
     const allUniversities = filteredRecommendations.flatMap(rec => rec.universities || []);
 
@@ -214,7 +182,7 @@ const Recommendation = () => {
             <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
                 <button
                     onClick={() => setSidebarOpen(!sidebarOpen)}
-                    className="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
+                    className="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
                 >
                     {sidebarOpen ? <IoCloseOutline className="w-6 h-6" /> : <IoMenuOutline className="w-6 h-6" />}
                 </button>
@@ -248,17 +216,9 @@ const Recommendation = () => {
                         </div>
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
                             <button
-                                onClick={() => setFilterOpen(!filterOpen)}
-                                className="flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm"
-                            >
-                                <IoFilterOutline className="w-4 h-4" />
-                                <span>Filter</span>
-                                <IoChevronDownOutline className={`w-4 h-4 transition-transform ${filterOpen ? 'rotate-180' : ''}`} />
-                            </button>
-                            <button
                                 onClick={generateNewRecommendations}
                                 disabled={generating || !preferences}
-                                className="flex items-center justify-center space-x-2 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                                className="flex items-center justify-center space-x-2 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm cursor-pointer"
                             >
                                 <IoReloadOutline className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
                                 <span>{generating ? 'Generating...' : 'Generate New'}</span>
@@ -266,63 +226,7 @@ const Recommendation = () => {
                         </div>
                     </div>
 
-                    {/* Filter Panel */}
-                    {filterOpen && (
-                        <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Budget (Max)</label>
-                                    <select
-                                        value={filters.budgetRange}
-                                        onChange={(e) => setFilters(prev => ({ ...prev, budgetRange: e.target.value }))}
-                                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 text-sm"
-                                    >
-                                        <option value="all">All budgets</option>
-                                        <option value="25000">Under $25K</option>
-                                        <option value="50000">Under $50K</option>
-                                        <option value="75000">Under $75K</option>
-                                        <option value="100000">Under $100K</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                                    <select
-                                        value={filters.location}
-                                        onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
-                                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 text-sm"
-                                    >
-                                        <option value="all">All locations</option>
-                                        <option value="united states">United States</option>
-                                        <option value="united kingdom">United Kingdom</option>
-                                        <option value="canada">Canada</option>
-                                        <option value="australia">Australia</option>
-                                        <option value="germany">Germany</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Ranking (Top)</label>
-                                    <select
-                                        value={filters.ranking}
-                                        onChange={(e) => setFilters(prev => ({ ...prev, ranking: e.target.value }))}
-                                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 text-sm"
-                                    >
-                                        <option value="all">All rankings</option>
-                                        <option value="50">Top 50</option>
-                                        <option value="100">Top 100</option>
-                                        <option value="200">Top 200</option>
-                                    </select>
-                                </div>
-                                <div className="flex items-end">
-                                    <button
-                                        onClick={() => setFilters({ budgetRange: 'all', studyLevel: 'all', location: 'all', ranking: 'all' })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors text-sm"
-                                    >
-                                        Clear filters
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                    {/* Filter Panel removed */}
                 </div>
 
                 {/* Error Message */}
@@ -345,14 +249,14 @@ const Recommendation = () => {
                                 <button
                                     onClick={generateNewRecommendations}
                                     disabled={generating}
-                                    className="px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50"
+                                    className="px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 cursor-pointer"
                                 >
                                     {generating ? 'Generating...' : 'Generate Recommendations'}
                                 </button>
                             ) : (
                                 <Link
                                     to="/preferences"
-                                    className="inline-block px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                                    className="inline-block px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors cursor-pointer"
                                 >
                                     Complete Preferences
                                 </Link>
@@ -379,16 +283,7 @@ const Recommendation = () => {
                                                     )}
                                                 </div>
                                             </div>
-                                            <button
-                                                onClick={() => toggleSaveUniversity(`${university.name}-${index}`)}
-                                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
-                                            >
-                                                {savedUniversities.has(`${university.name}-${index}`) ? (
-                                                    <IoHeart className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
-                                                ) : (
-                                                    <IoHeartOutline className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-                                                )}
-                                            </button>
+                                            {/* Favourite icon removed */}
                                         </div>
 
                                         {/* University Image */}
@@ -498,7 +393,7 @@ const Recommendation = () => {
                                                     href={university.website}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="w-full block px-3 sm:px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors text-xs sm:text-sm font-medium text-center"
+                                                    className="w-full block px-3 sm:px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors text-xs sm:text-sm font-medium text-center cursor-pointer"
                                                 >
                                                     Visit Website
                                                 </a>
@@ -508,7 +403,7 @@ const Recommendation = () => {
                                                 </button>
                                             )}
                                             <button
-                                                className="w-full px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors text-xs sm:text-sm font-medium"
+                                                className="w-full px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors text-xs sm:text-sm font-medium cursor-pointer"
                                                 onClick={() => handleMoreInfo(university.name)}
                                             >
                                                 More Info
@@ -519,7 +414,7 @@ const Recommendation = () => {
                 <div className="fixed inset-0 z-50 flex items-center justify-center">
                     <div className="bg-white rounded-2xl shadow-lg max-w-lg w-full p-6 relative border border-gray-200">
                         <button
-                            className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+                            className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 cursor-pointer"
                             onClick={() => setModalOpen(false)}
                         >
                             <IoCloseOutline className="w-6 h-6" />
