@@ -39,32 +39,7 @@ const Dashboard = () => {
             const response = await recommendationsAPI.getAll();
             const apiRecommendations = response.data.recommendations || [];
             
-            // If no recommendations from API, provide fallback mock data for testing
-            if (apiRecommendations.length === 0 || apiRecommendations.every(rec => !rec.universities || rec.universities.length === 0)) {
-                console.log('No API recommendations found, using fallback data');
-                const mockRecommendations = [{
-                    universities: [
-                        {
-                            name: 'Harvard University',
-                            location: { city: 'Cambridge', country: 'United States' },
-                            fitScore: 95
-                        },
-                        {
-                            name: 'MIT',
-                            location: { city: 'Cambridge', country: 'United States' },
-                            fitScore: 92
-                        },
-                        {
-                            name: 'IIT Delhi',
-                            location: { city: 'New Delhi', country: 'India' },
-                            fitScore: 88
-                        }
-                    ]
-                }];
-                setRecommendations(mockRecommendations);
-            } else {
-                setRecommendations(apiRecommendations);
-            }
+            setRecommendations(apiRecommendations);
         } catch (error) {
             console.error('Error loading recommendations:', error);
             setError(handleAPIError(error));

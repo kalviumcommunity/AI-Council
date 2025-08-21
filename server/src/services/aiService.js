@@ -3,7 +3,7 @@ const axios = require('axios');
 class AIService {
   constructor() {
     this.apiKey = process.env.GEMINI_API_KEY;
-    this.baseURL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+    this.baseURL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
     this.retryAttempts = 3;
     this.retryDelay = 1000; // 1 second base delay
   }
@@ -75,11 +75,30 @@ class AIService {
   /**
    * Generate chatbot response
    */
-  async generateChatResponse(message, preferences = null, recommendations = null) {
+  async generateChatResponse(message, preferences = null, recommendations = null, chatHistory = []) {
     try {
-      let prompt = `You are an experienced university counselor and educational advisor. You help students find the right universities and answer their questions about higher education.
+      let prompt = `You are an AI assistant for the AI-Council platform. Your ONLY job is to help students with university search, recommendations, and platform features. Do NOT answer general questions, DSA problems, or anything unrelated to university guidance or this website.
 
-Context: You are helping a student with their university search and academic planning.`;
+Context: You are helping a student with their university search and academic planning. Stay focused on:
+- University recommendations
+- Admission guidance
+- Platform features (how to use, troubleshooting, etc)
+- Student preferences and questions about universities
+
+If the user asks for something outside this scope, politely say you can only help with university guidance and platform features.
+
+By default, keep your responses short and to the point. Only provide a detailed explanation if the user explicitly asks for it (e.g., says "explain in detail" or "give a long answer").
+`;
+
+      // Add chat history to prompt for full conversational context
+      if (Array.isArray(chatHistory) && chatHistory.length > 0) {
+        prompt += `\n\n--- Chat History ---\n`;
+        chatHistory.forEach(msg => {
+          const who = msg.type === 'user' ? 'User' : 'AI';
+          prompt += `${who}: ${msg.message}\n`;
+        });
+        prompt += `--- End Chat History ---\n`;
+      }
 
       if (preferences) {
         prompt += `
@@ -112,15 +131,26 @@ Previous recommendation summary: ${recommendations.aiResponse.substring(0, 500)}
         }
       }
 
+
       prompt += `
 
 Student's Question: "${message}"
 
-Please provide a helpful, informative response. If the question relates to the recommended universities above, reference them specifically. If the student asks about specific universities from their recommendations, provide detailed information about those institutions. Keep your response conversational but professional.`;
+IMPORTANT: If the user's message changes their university preferences or constraints (such as budget, country, major, study level, etc.), reply with a JSON object at the END of your response in the following format:
+{
+  "update": true,
+  "preferencesDescription": "A concise summary of the updated preferences or constraints."
+}
+If there is NO change, do NOT include the JSON object.
+
+Example:
+"Here is your answer about scholarships.\n\n{\"update\":true,\"preferencesDescription\":\"Budget updated to $30,000, country set to Canada, major: Computer Science\"}"
+
+Remember: Only answer questions related to university guidance or platform features. Keep answers short unless a detailed explanation is requested.`;
 
       const response = await this.callGeminiAPI(prompt, {
-        temperature: 0.8,
-        maxOutputTokens: 1024
+        temperature: 0.7,
+        maxOutputTokens: 700
       });
 
       return response.trim();
@@ -138,7 +168,7 @@ Please provide a helpful, informative response. If the question relates to the r
       console.log('=== AI SERVICE: GENERATING RECOMMENDATIONS ===');
       console.log('Preferences received:', preferences);
       
-      const prompt = `You are a university counselor with access to university databases and image resources. Based on the following student preferences, provide university recommendations with REAL university images.
+      let prompt = `You are a university counselor with access to university databases and image resources. Based on the following student preferences and constraints, provide university recommendations with REAL university images.
 
 Student Preferences:
 - Academic Interests: ${preferences.academicInterests?.join(', ')}
@@ -149,36 +179,9 @@ Student Preferences:
 - University Size Preference: ${preferences.preferredUniversitySize}
 ${preferences.additionalRequirements ? `- Additional Requirements: ${preferences.additionalRequirements}` : ''}
 
-Please provide:
-1. A list of 5-8 suitable universities
-2. A comprehensive explanation of your recommendations
+${preferences.preferencesDescription ? `Additional Constraints from chat: ${preferences.preferencesDescription}` : ''}
 
-For each university, include:
-- Name
-- Country and city
-- Why it's a good fit (2-3 sentences)
-- Approximate ranking (if known)
-- Fit score (0-100)
-- Estimated tuition range
-- University image URL (IMPORTANT: Provide a real, working image URL for the university)
-
-CRITICAL FOR IMAGE URLs: 
-1. Provide actual, working image URLs for each university's campus or iconic buildings
-2. Use these specific image sources:
-   - Official university website images (preferred)
-   - Wikipedia Commons university images
-   - High-quality Unsplash photos tagged with the university name
-   - Wikimedia university campus photos
-3. Ensure URLs are direct image links (ending in .jpg, .png, .webp)
-4. Each university should have a unique, relevant image
-5. Test that the URL would work in an img tag
-6. For well-known universities, use their iconic campus shots
-7. Examples of good URL patterns:
-   - https://upload.wikimedia.org/wikipedia/commons/[path]/[image].jpg
-   - https://images.unsplash.com/photo-[id]?w=800&h=600&fit=crop&q=80
-   - https://www.[university].edu/images/[campus-photo].jpg
-
-IMPORTANT: Do NOT use placeholder or example URLs. Provide real, accessible image URLs that show the actual university campus or buildings.
+IMPORTANT: ONLY reply with the JSON block described below. Do NOT reply with a confirmation, summary, or any text before or after the JSON. Your response must start and end with the JSON block.
 
 Format your response as JSON with this structure:
 {
@@ -203,6 +206,24 @@ Format your response as JSON with this structure:
   ],
   "summary": "Comprehensive explanation of the recommendations and advice for the student..."
 }
+
+CRITICAL FOR IMAGE URLs: 
+1. Provide actual, working image URLs for each university's campus or iconic buildings
+2. Use these specific image sources:
+   - Official university website images (preferred)
+   - Wikipedia Commons university images
+   - High-quality Unsplash photos tagged with the university name
+   - Wikimedia university campus photos
+3. Ensure URLs are direct image links (ending in .jpg, .png, .webp)
+4. Each university should have a unique, relevant image
+5. Test that the URL would work in an img tag
+6. For well-known universities, use their iconic campus shots
+7. Examples of good URL patterns:
+   - https://upload.wikimedia.org/wikipedia/commons/[path]/[image].jpg
+   - https://images.unsplash.com/photo-[id]?w=800&h=600&fit=crop&q=80
+   - https://www.[university].edu/images/[campus-photo].jpg
+
+IMPORTANT: Do NOT use placeholder or example URLs. Provide real, accessible image URLs that show the actual university campus or buildings.
 
 REMEMBER: Each university MUST have a unique, working imageUrl that shows the actual university campus or buildings. Do not use generic stock images. Research and provide real university image URLs.
 

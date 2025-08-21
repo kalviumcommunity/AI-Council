@@ -11,15 +11,35 @@ import rehypeHighlight from 'rehype-highlight';
 import { chatAPI, preferencesAPI, recommendationsAPI, handleAPIError } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
+const CHAT_STORAGE_KEY = 'aiCouncilChatHistory';
+
 const ChatInterface = ({ isCompact = false, onPreferenceChange }) => {
-  const [messages, setMessages] = useState([
-    {
+  // Load messages from localStorage or use default
+  const getInitialMessages = () => {
+    try {
+      const stored = localStorage.getItem(CHAT_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        // Convert timestamp strings back to Date objects
+        return parsed.map(msg => ({ ...msg, timestamp: new Date(msg.timestamp) }));
+      }
+    } catch {}
+    return [{
       id: 1,
       type: 'ai',
       message: 'Hello! 👋 I\'m your AI educational counselor. I\'m here to help you with any questions about universities, career paths, or academic planning. How can I assist you today?',
       timestamp: new Date()
-    }
-  ]);
+    }];
+  };
+
+  const [messages, setMessages] = useState(getInitialMessages());
+  const [preferencesDescription, setPreferencesDescription] = useState('');
+  // Persist messages to localStorage whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
+    } catch {}
+  }, [messages]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [error, setError] = useState('');
@@ -68,38 +88,41 @@ const ChatInterface = ({ isCompact = false, onPreferenceChange }) => {
       // Send message and get AI response
       const response = await chatAPI.sendMessage(messageToSend, preferencesId);
       
+
+      // Remove JSON block from message for display
+      let displayMessage = response.data.response;
+      const jsonMatch = displayMessage.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        displayMessage = displayMessage.replace(jsonMatch[0], '').trim();
+      }
       const aiMessage = {
         id: Date.now() + 1,
         type: 'ai',
-        message: response.data.response,
+        message: displayMessage,
         timestamp: new Date()
       };
 
       setMessages(prev => [...prev, aiMessage]);
-      
-      // Auto-generate recommendations if conversation suggests preference changes
-      const preferenceKeywords = [
-        'prefer', 'change', 'different', 'budget', 'country', 'major', 
-        'study', 'university', 'location', 'cost', 'program', 'degree',
-        'recommend', 'suggest', 'find', 'looking for', 'interested'
-      ];
-      
-      const conversationText = messageToSend.toLowerCase() + ' ' + response.data.response.toLowerCase();
-      const shouldGenerateRecommendations = preferenceKeywords.some(keyword => 
-        conversationText.includes(keyword)
-      );
-      
-      if (shouldGenerateRecommendations && preferencesId) {
-        try {
-          console.log('Auto-generating recommendations based on conversation...');
-          await recommendationsAPI.generate(preferencesId);
-          if (onPreferenceChange) {
-            onPreferenceChange();
+
+      // Check for update:true in AI response JSON and update preferencesDescription
+      try {
+        const match = response.data.response.match(/\{[\s\S]*\}/);
+        if (match) {
+          const json = JSON.parse(match[0]);
+          if (json.preferencesDescription && preferencesId) {
+            setPreferencesDescription(json.preferencesDescription);
+            // PATCH preferencesDescription to backend
+            await preferencesAPI.updateDescription(preferencesId, json.preferencesDescription);
           }
-        } catch (recError) {
-          console.log('Background recommendation generation failed:', recError);
+          if (json.update === true && preferencesId) {
+            // Generate new recommendations with updated preferences
+            await recommendationsAPI.generate(preferencesId);
+            if (onPreferenceChange) {
+              onPreferenceChange();
+            }
+          }
         }
-      }
+      } catch {}
     } catch (error) {
       console.error('Chat error:', error);
       setError(handleAPIError(error));

@@ -57,6 +57,7 @@ export const preferencesAPI = {
   getById: (id) => api.get(`/preferences/${id}`),
   getAll: () => api.get('/preferences/all'),
   delete: () => api.delete('/preferences'),
+  updateDescription: (id, preferencesDescription) => api.patch(`/preferences/${id}/description`, { preferencesDescription }),
 };
 
 // Chat API calls
@@ -65,6 +66,12 @@ export const chatAPI = {
     api.post('/chat/message', { message, preferencesId }),
   getHistory: () => api.get('/chat/history'),
   clearHistory: () => api.delete('/chat/history'),
+};
+
+
+// University API calls
+export const universityAPI = {
+  getDetails: (universityName) => api.post('/university/details', { universityName }),
 };
 
 // Recommendations API calls

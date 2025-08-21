@@ -1,6 +1,7 @@
 const aiService = require('../services/aiService');
 const Preference = require('../models/Preference');
 const Recommendation = require('../models/Recommendation');
+const ChatMessage = require('../models/ChatMessage');
 
 /**
  * Send a message to the AI chatbot
@@ -41,6 +42,14 @@ const sendMessage = async (req, res) => {
       console.log('No preferences provided - sending message without user context');
     }
 
+    // Store user message in chat history
+    await ChatMessage.create({
+      userId,
+      type: 'user',
+      message,
+      timestamp: new Date()
+    });
+
     // Get user's latest recommendations if they exist
     let recommendations = null;
     try {
@@ -63,10 +72,21 @@ const sendMessage = async (req, res) => {
       console.log('Error fetching recommendations:', recError.message);
     }
 
-    // Generate AI response with preferences and recommendations context
+    // Fetch full chat history for user
+    const chatHistory = await ChatMessage.find({ userId }).sort({ timestamp: 1 }).lean();
+
+    // Generate AI response with preferences, recommendations, and chat history context
     const startTime = Date.now();
-    const aiResponse = await aiService.generateChatResponse(message, preferences, recommendations);
+    const aiResponse = await aiService.generateChatResponse(message, preferences, recommendations, chatHistory);
     const processingTime = Date.now() - startTime;
+
+    // Store AI response in chat history
+    await ChatMessage.create({
+      userId,
+      type: 'ai',
+      message: aiResponse,
+      timestamp: new Date()
+    });
 
     console.log('Chat response generated successfully in', processingTime, 'ms');
     console.log('Response length:', aiResponse.length, 'characters');

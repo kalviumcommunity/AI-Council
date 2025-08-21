@@ -39,6 +39,9 @@ const Signup = () => {
       
       if (result.success) {
         // New user always goes to preferences form
+              <p style={{ color: 'gray', fontSize: '0.9em', marginBottom: '10px' }}>
+                Password should contain uppercase, lowercase, and special characters.
+              </p>
         navigate('/preferences');
       } else {
         setError(result.error || 'Signup failed. Please try again.');
