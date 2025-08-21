@@ -7,8 +7,10 @@ const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
   },
   timeout: 30000, // 30 second timeout
+  withCredentials: true, // Include credentials in requests
 });
 
 // Add auth token to requests if available
@@ -55,6 +57,7 @@ export const preferencesAPI = {
   getById: (id) => api.get(`/preferences/${id}`),
   getAll: () => api.get('/preferences/all'),
   delete: () => api.delete('/preferences'),
+  updateDescription: (id, preferencesDescription) => api.patch(`/preferences/${id}/description`, { preferencesDescription }),
 };
 
 // Chat API calls
@@ -63,6 +66,12 @@ export const chatAPI = {
     api.post('/chat/message', { message, preferencesId }),
   getHistory: () => api.get('/chat/history'),
   clearHistory: () => api.delete('/chat/history'),
+};
+
+
+// University API calls
+export const universityAPI = {
+  getDetails: (universityName) => api.post('/university/details', { universityName }),
 };
 
 // Recommendations API calls
