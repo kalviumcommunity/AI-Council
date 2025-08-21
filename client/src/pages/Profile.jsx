@@ -51,10 +51,10 @@ const Profile = () => {
     };
 
     const formatBudgetRange = (budgetRange) => {
-        if (!budgetRange) return 'Not specified';
-        const min = budgetRange.min || 0;
-        const max = budgetRange.max || 0;
-        return `$${min.toLocaleString()} - $${max.toLocaleString()}`;
+    if (!budgetRange) return 'Not specified';
+    const min = budgetRange.min || 0;
+    const max = budgetRange.max || 0;
+    return `₹${min.toLocaleString()} - ₹${max.toLocaleString()}`;
     };
 
     const formatTestScores = (testScores) => {

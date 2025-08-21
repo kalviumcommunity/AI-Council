@@ -101,14 +101,16 @@ By default, keep your responses short and to the point. Only provide a detailed 
       }
 
       if (preferences) {
-        prompt += `
+  prompt += `
 
 Student's Preferences:
 - Academic Interests: ${preferences.academicInterests?.join(', ') || 'Not specified'}
 - Preferred Countries: ${preferences.preferredCountries?.join(', ') || 'Not specified'}
-- Budget Range: $${preferences.budgetRange?.min || 0} - $${preferences.budgetRange?.max || 'No limit'}
+- Budget Range: ₹${preferences.budgetRange?.min || 0} - ₹${preferences.budgetRange?.max || 'No limit'}
 - Study Level: ${preferences.studyLevel || 'Not specified'}
-- Test Scores: ${this.formatTestScores(preferences.testScores)}`;
+- Test Scores: ${this.formatTestScores(preferences.testScores)}
+
+IMPORTANT: All monetary amounts (budget, tuition, etc.) must be shown in Indian Rupees (₹) and not dollars ($).`;
       }
 
       if (recommendations && recommendations.universities && recommendations.universities.length > 0) {
@@ -168,12 +170,11 @@ Remember: Only answer questions related to university guidance or platform featu
       console.log('=== AI SERVICE: GENERATING RECOMMENDATIONS ===');
       console.log('Preferences received:', preferences);
       
-      let prompt = `You are a university counselor with access to university databases and image resources. Based on the following student preferences and constraints, provide university recommendations with REAL university images.
-
+      let prompt = `You are a university counselor with access to university databases and image resources. Based on the following student preferences and constraints, provide 5-10 unique university recommendations with REAL university images. Each recommendation must be for a different university (no duplicates).
 Student Preferences:
 - Academic Interests: ${preferences.academicInterests?.join(', ')}
 - Preferred Countries: ${preferences.preferredCountries?.join(', ')}
-- Budget Range: $${preferences.budgetRange?.min} - $${preferences.budgetRange?.max}
+- Budget Range: ₹${preferences.budgetRange?.min} - ₹${preferences.budgetRange?.max}
 - Study Level: ${preferences.studyLevel}
 - Test Scores: ${this.formatTestScores(preferences.testScores)}
 - University Size Preference: ${preferences.preferredUniversitySize}
@@ -182,6 +183,8 @@ ${preferences.additionalRequirements ? `- Additional Requirements: ${preferences
 ${preferences.preferencesDescription ? `Additional Constraints from chat: ${preferences.preferencesDescription}` : ''}
 
 IMPORTANT: ONLY reply with the JSON block described below. Do NOT reply with a confirmation, summary, or any text before or after the JSON. Your response must start and end with the JSON block.
+
+IMPORTANT: All monetary amounts (budget, tuition, etc.) must be shown in Indian Rupees (₹) and not dollars ($).
 
 Format your response as JSON with this structure:
 {

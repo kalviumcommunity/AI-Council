@@ -365,7 +365,7 @@ const BudgetScoresStep = ({ formData, updateFormData }) => {
       {/* Budget Range */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-3">
-          Budget Range (USD per year)
+          Budget Range (INR per year)
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           <div>
@@ -377,6 +377,7 @@ const BudgetScoresStep = ({ formData, updateFormData }) => {
               onChange={(e) => updateBudgetRange('min', e.target.value)}
               className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm sm:text-base"
             />
+            <span className="ml-2 text-gray-500">₹</span>
           </div>
           <div>
             <label className="block text-xs text-gray-500 mb-1">Maximum</label>
@@ -387,6 +388,7 @@ const BudgetScoresStep = ({ formData, updateFormData }) => {
               onChange={(e) => updateBudgetRange('max', e.target.value)}
               className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm sm:text-base"
             />
+            <span className="ml-2 text-gray-500">₹</span>
           </div>
         </div>
       </div>
